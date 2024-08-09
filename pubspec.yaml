@@ -9,11 +9,14 @@ environment:
   sdk: ">=3.4.4 <3.5.1"
 
 dependencies:
+  cached_network_image: ^3.4.0
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   get: ^4.6.6
+  http: ^1.2.2
+  image_picker: ^1.1.2
   intl: any
 
 dev_dependencies:
