@@ -22,6 +22,7 @@ class SelectMultiImagePicker extends StatelessWidget {
           ? buildCircularProgressIndicator()
           : ListView(
               shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
               children: [
                 SizedBox(
                   height: 100,
@@ -31,8 +32,7 @@ class SelectMultiImagePicker extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () async {
-                          // valuePlot.fileUpload = await ctl.pickFile(ImageSource.camera);
-                          // ctl.trickImage.refresh();
+                          await ctl.pickFile(source: ImageSource.camera, isReplace: false);
                         },
                         child: const Column(
                           children: [
@@ -46,8 +46,7 @@ class SelectMultiImagePicker extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () async {
-                          // valuePlot.fileUpload = await ctl.pickFile(ImageSource.gallery);
-                          // ctl.trickImage.refresh();
+                          await ctl.pickFile(source: ImageSource.gallery, isReplace: false);
                         },
                         child: const Column(
                           children: [
@@ -80,83 +79,78 @@ class SelectMultiImagePicker extends StatelessWidget {
   GridView buildGrid(SelectMultiImagePickerCtl ctl) {
     return GridView.builder(
       shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3, crossAxisSpacing: 5.0, mainAxisSpacing: 5.0, childAspectRatio: 0.75),
       itemCount: ctl.photoPlots.length,
       itemBuilder: (context, index) {
         ImagePlot valuePlot = ctl.photoPlots[index];
-        return Obx(
-          () => ctl.trickImage.value
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    valuePlot.fileUpload != null && valuePlot.fileUpload!.path.isNotEmpty
-                        ? InkWell(
-                            onTap: () async {
-                              // String image = valuePlot.fileUpload!.path;
-                              // await Get.to(HeroImagePage(image: image, isLocal: true));
-                            },
-                            child: Image.file(
-                              File(valuePlot.fileUpload!.path),
-                              height: 120,
-                              width: 120,
-                              fit: context.isLandscape ? BoxFit.fitHeight : BoxFit.fitWidth,
-                            ),
-                          )
-                        : InkWell(
-                            onTap: () async {
-                              // String image = '${ctl.baseUrl}${valuePlot.after}';
-                              // bool checkImage = await ctl.checkImageUrl(image);
-                              // if (checkImage) {
-                              //   await Get.to(HeroImagePage(image: image, isLocal: false));
-                              // }
-                            },
-                            child: CachedNetworkImage(
-                              imageUrl: 'http://68.183.187.67:8000${valuePlot.image}',
-                              placeholder: (context, url) => SizedBox(
-                                height: 120,
-                                width: 120,
-                                child: LinearProgressIndicator(
-                                  color: Get.theme.primaryColor,
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => const SizedBox(
-                                height: 120,
-                                width: 120,
-                                child: Icon(Icons.error),
-                              ),
-                              fit: context.isLandscape ? BoxFit.fitHeight : BoxFit.fitWidth,
-                              height: 120,
-                              width: 120,
-                            ),
-                          ),
-                    SizedBox(
-                      height: 40,
+        return Column(
+          children: [
+            valuePlot.fileUpload != null && valuePlot.fileUpload!.path.isNotEmpty
+                ? InkWell(
+                    onTap: () async {
+                      // String image = valuePlot.fileUpload!.path;
+                      // await Get.to(HeroImagePage(image: image, isLocal: true));
+                    },
+                    child: Image.file(
+                      File(valuePlot.fileUpload!.path),
+                      height: 120,
                       width: 120,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          IconButton(
-                            onPressed: () async {
-                              valuePlot.fileUpload = await ctl.pickFile(ImageSource.camera);
-                              ctl.trickImage.refresh();
-                            },
-                            icon: const Icon(Icons.camera_alt_outlined),
-                          ),
-                          IconButton(
-                            onPressed: () async {
-                              valuePlot.fileUpload = await ctl.pickFile(ImageSource.gallery);
-                              ctl.trickImage.refresh();
-                            },
-                            icon: const Icon(
-                              Icons.photo_size_select_actual_rounded,
-                            ),
-                          ),
-                        ],
-                      ),
+                      fit: context.isLandscape ? BoxFit.fitHeight : BoxFit.fitWidth,
                     ),
-                  ],
-                ),
+                  )
+                : InkWell(
+                    onTap: () async {
+                      // String image = '${ctl.baseUrl}${valuePlot.after}';
+                      // bool checkImage = await ctl.checkImageUrl(image);
+                      // if (checkImage) {
+                      //   await Get.to(HeroImagePage(image: image, isLocal: false));
+                      // }
+                    },
+                    child: CachedNetworkImage(
+                      imageUrl: 'http://68.183.187.67:8000${valuePlot.image}',
+                      placeholder: (context, url) => SizedBox(
+                        height: 120,
+                        width: 120,
+                        child: LinearProgressIndicator(
+                          color: Get.theme.primaryColor,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => const SizedBox(
+                        height: 120,
+                        width: 120,
+                        child: Icon(Icons.error),
+                      ),
+                      fit: context.isLandscape ? BoxFit.fitHeight : BoxFit.fitWidth,
+                      height: 120,
+                      width: 120,
+                    ),
+                  ),
+            SizedBox(
+              height: 40,
+              width: 120,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    onPressed: () async {
+                      valuePlot.fileUpload = await ctl.pickFile(source: ImageSource.camera, isReplace: true);
+                    },
+                    icon: const Icon(Icons.camera_alt_outlined),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      valuePlot.fileUpload = await ctl.pickFile(source: ImageSource.gallery, isReplace: true);
+                    },
+                    icon: const Icon(
+                      Icons.photo_size_select_actual_rounded,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );

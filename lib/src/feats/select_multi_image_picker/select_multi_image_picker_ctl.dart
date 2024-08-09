@@ -10,7 +10,7 @@ class SelectMultiImagePickerCtl extends GetxController {
   final ImagePicker picker = ImagePicker();
   String subsiteId = "";
 
-  RxBool isLoading = true.obs, trickImage = false.obs;
+  RxBool isLoading = true.obs;
   RxList<ImagePlot> photoPlots = RxList<ImagePlot>([]);
 
   @override
@@ -77,21 +77,43 @@ class SelectMultiImagePickerCtl extends GetxController {
     }
   }
 
-  Future<XFile?> pickFile(ImageSource source) async {
-    XFile? image;
+  Future pickFile({required ImageSource source, required bool isReplace}) async {
     switch (source) {
-      case ImageSource.camera:
-        image = await picker.pickImage(source: ImageSource.camera);
-        break;
       case ImageSource.gallery:
-        List<XFile>? tempImages = await picker.pickMultiImage(limit: 10);
-        if (tempImages.isNotEmpty) {
-          image = tempImages.firstOrNull;
-          if (tempImages.length > 1) {}
+        if (isReplace) {
+          XFile? image = await picker.pickImage(source: ImageSource.gallery);
+          photoPlots.refresh();
+          return image;
+        } else {
+          List<XFile>? tempImages = await picker.pickMultiImage(limit: 10);
+          if (tempImages.isNotEmpty) {
+            if (tempImages.length > 10) {
+              throw 'กรุณาเลือกไฟล์ไม่เกิน 10 รูป';
+            }
+            if (tempImages.length == 1) {
+              XFile? image = tempImages.firstOrNull;
+              photoPlots.add(ImagePlot(fileUpload: image));
+            } else {
+              for (XFile image in tempImages) {
+                photoPlots.add(ImagePlot(fileUpload: image));
+              }
+            }
+          }
+        }
+        break;
+      default:
+        XFile? image = await picker.pickImage(source: ImageSource.camera);
+        if (image != null) {
+          if (isReplace) {
+            photoPlots.refresh();
+            return image;
+          } else {
+            photoPlots.add(ImagePlot(fileUpload: image));
+          }
         }
         break;
     }
-    return image;
+    photoPlots.refresh();
   }
 
   Future<bool> checkImageUrl(String url) async {
